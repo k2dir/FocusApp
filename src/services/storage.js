@@ -80,8 +80,9 @@ export const seedDatabase = async () => {
     const sessionsCount = Math.floor(Math.random() * 3) + 3; 
 
     for (let k = 0; k < sessionsCount; k++) {
-      // Random Duration: 10 mins (600s) to 60 mins (3600s)
-      const duration = Math.floor(Math.random() * 3000) + 600;
+      // Random Duration: 10 to 60 minutes (whole minutes only)
+      const minutes = Math.floor(Math.random() * 51) + 10; // 10 to 60
+      const duration = minutes * 60;
       
       dummySessions.push({
         date: dayDate.toISOString(), // ISO String format

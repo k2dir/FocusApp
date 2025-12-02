@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { loadSessions, clearData } from '../services/storage';
+import { loadSessions, clearData, seedDatabase } from '../services/storage';
 import { colors } from '../styles/colors';
 
 export const useReportsLogic = () => {
@@ -10,7 +10,6 @@ export const useReportsLogic = () => {
   const [pieData, setPieData] = useState([]);
   const [barData, setBarData] = useState([0,0,0,0,0,0,0]);
   const [barLabels, setBarLabels] = useState([]);
-  const [recentSessions, setRecentSessions] = useState([]);
 
   useFocusEffect(
     useCallback(() => { fetchData(); }, [viewMode])
@@ -19,7 +18,6 @@ export const useReportsLogic = () => {
   const fetchData = async () => {
     const data = await loadSessions();
     processStats(data);
-    setRecentSessions([...data].reverse().slice(0, 5));
   };
 
   const handleClearData = () => {
@@ -27,6 +25,11 @@ export const useReportsLogic = () => {
       { text: "Cancel" },
       { text: "Delete", style: "destructive", onPress: async () => { await clearData(); fetchData(); } }
     ]);
+  };
+
+  const handleSeedData = async () => {
+    await seedDatabase();
+    fetchData();
   };
 
   const processStats = (data) => {
@@ -63,5 +66,5 @@ export const useReportsLogic = () => {
     setBarLabels(bLabels);
   };
 
-  return { viewMode, setViewMode, stats, pieData, barData, barLabels, recentSessions, handleClearData };
+  return { viewMode, setViewMode, stats, pieData, barData, barLabels, handleClearData, handleSeedData };
 };

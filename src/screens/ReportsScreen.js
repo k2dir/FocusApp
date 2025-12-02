@@ -15,7 +15,7 @@ const chartConfig = {
 };
 
 export default function ReportsScreen() {
-  const { viewMode, setViewMode, stats, pieData, barData, barLabels, recentSessions, handleClearData } = useReportsLogic();
+  const { viewMode, setViewMode, stats, pieData, barData, barLabels, handleClearData, handleSeedData } = useReportsLogic();
 
   const fmtTime = (s) => { const m = Math.floor(s/60); const sec = s%60; return m===0 ? `${sec}s` : `${m}m ${sec}s`; };
   const fmtDate = (d) => { const date = new Date(d); return `${date.toLocaleDateString()} ${date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`; };
@@ -25,7 +25,10 @@ export default function ReportsScreen() {
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <Text style={styles.header}>Analytics</Text>
-          <TouchableOpacity onPress={handleClearData}><Ionicons name="trash-outline" size={20} color={colors.danger} /></TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <TouchableOpacity onPress={handleSeedData}><Ionicons name="add-circle-outline" size={20} color={colors.primary} /></TouchableOpacity>
+            <TouchableOpacity onPress={handleClearData}><Ionicons name="trash-outline" size={20} color={colors.danger} /></TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.toggleContainer}>
@@ -53,16 +56,6 @@ export default function ReportsScreen() {
           <BarChart data={{ labels: barLabels, datasets: [{ data: barData }] }} width={screenWidth-70} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={chartConfig} style={styles.graphStyle} showValuesOnTopOfBars />
         </View>
 
-        <Text style={styles.sectionHeader}>History</Text>
-        {recentSessions.length > 0 ? recentSessions.map((s, i) => (
-          <View key={i} style={styles.historyItem}>
-            <View><Text style={styles.historyCat}>{s.category}</Text><Text style={styles.historyDate}>{fmtDate(s.date)}</Text></View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={styles.historyDuration}>{fmtTime(s.duration)}</Text>
-              {s.focusLoss > 0 && <Text style={styles.historyLoss}>{s.focusLoss} distractions</Text>}
-            </View>
-          </View>
-        )) : <Text style={{color:'#999', marginBottom:20}}>No recent sessions.</Text>}
         <View style={{height:40}} />
       </ScrollView>
     </SafeAreaView>

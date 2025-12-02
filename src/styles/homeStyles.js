@@ -4,7 +4,7 @@ import { colors } from './colors';
 export const homeStyles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   scrollContainer: { alignItems: 'center', padding: 24, paddingBottom: 50 },
-  header: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 20 },
+  header: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 20, textAlign: 'center' },
 
   // Categories
   catWrapper: { height: 50, marginBottom: 20 },
@@ -52,5 +52,13 @@ export const homeStyles = StyleSheet.create({
   modalContent: { width: '80%', backgroundColor: colors.surface, borderRadius: 20, padding: 24, elevation: 5 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, color: colors.text },
   input: { borderBottomWidth: 1, borderBottomColor: colors.border, padding: 10, fontSize: 16, marginBottom: 20 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+
+  sectionHeader: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 15, marginTop: 10 },
+  historyItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.surface, padding: 15, borderRadius: 12, marginBottom: 10, elevation: 1 },
+  historyDate: { color: '#B2BEC3', fontSize: 12, marginTop: 4 },
+  historyDuration: { fontWeight: '700', color: colors.primary, fontSize: 16 },
+  historyLoss: { color: colors.danger, fontSize: 12, marginTop: 2 },
+
   modalBtns: { flexDirection: 'row', justifyContent: 'flex-end', gap: 15 },
 });
