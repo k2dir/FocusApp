@@ -52,7 +52,8 @@ export const useHomeLogic = (onSessionComplete, onPause) => {
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (appState.current === 'active' && nextAppState.match(/inactive|background/) && isActive) {
-        // Keep timer running, just track distraction
+        setIsActive(false);
+        setMode('paused');
         setFocusLoss((prev) => prev + 1);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
