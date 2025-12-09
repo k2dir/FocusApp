@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { AppState, Alert } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import * as Notifications from 'expo-notifications';
 import { 
   saveSession, loadCategories, saveCategories, loadTimers, saveTimers 
 } from '../services/storage';
@@ -31,6 +32,11 @@ export const useHomeLogic = (onSessionComplete, onPause) => {
       setInitialTime(times[1] * 60);
       setTimeLeft(times[1] * 60);
     }
+    // Request notification permissions
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Notifications are required for session alerts.');
+    }
   };
 
   useEffect(() => {
@@ -46,8 +52,7 @@ export const useHomeLogic = (onSessionComplete, onPause) => {
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (appState.current === 'active' && nextAppState.match(/inactive|background/) && isActive) {
-        setIsActive(false);
-        setMode('paused');
+        // Keep timer running, just track distraction
         setFocusLoss((prev) => prev + 1);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
@@ -74,6 +79,15 @@ export const useHomeLogic = (onSessionComplete, onPause) => {
     setMode('idle');
     
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Schedule notification
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Session Complete!',
+        body: `Great job focusing on ${category}. Time to take a break!`,
+        sound: true,
+      },
+      trigger: null, // Immediate
+    });
     if (onSessionComplete) onSessionComplete();
   };
 
