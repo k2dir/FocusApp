@@ -55,9 +55,10 @@ export default function ReportsScreen() {
           <Text style={styles.chartTitle}>Weekly Trend</Text>
           <BarChart data={{ labels: barLabels, datasets: [{ data: barData }] }} width={screenWidth-70} height={220} yAxisLabel="" yAxisSuffix="" chartConfig={chartConfig} style={styles.graphStyle} showValuesOnTopOfBars />
         </View>
+        
 
         <View style={{height:40}} />
       </ScrollView>
     </SafeAreaView>
   );
-}
+}//f
