@@ -4,9 +4,8 @@ import * as Haptics from 'expo-haptics';
 import { 
   saveSession, loadCategories, saveCategories, loadTimers, saveTimers 
 } from '../services/storage';
-import { playDefaultSound } from '../services/notifications'; // <--- Import here
 
-export const useHomeLogic = () => {
+export const useHomeLogic = (onSessionComplete, onPause) => {
   const [timeLeft, setTimeLeft] = useState(1500); 
   const [initialTime, setInitialTime] = useState(1500); 
   const [isActive, setIsActive] = useState(false);
@@ -59,17 +58,23 @@ export const useHomeLogic = () => {
 
   const toggleTimer = () => {
     Haptics.selectionAsync();
-    if (isActive) { setIsActive(false); setMode('paused'); } 
-    else { setIsActive(true); setMode('running'); }
+    if (isActive) { 
+      setIsActive(false); 
+      setMode('paused'); 
+      if (onPause) onPause();
+    } 
+    else { 
+      setIsActive(true); 
+      setMode('running'); 
+    }
   };
 
   const completeSession = async () => {
     setIsActive(false);
-    setMode('summary');
+    setMode('idle');
     
-    // Play Default System Sound (Invisible Notification)
-    await playDefaultSound(); 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (onSessionComplete) onSessionComplete();
   };
 
   const changeDuration = (minutes) => {

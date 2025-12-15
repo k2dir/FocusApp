@@ -12,17 +12,21 @@ import Card from '../components/Card';
 import AppButton from '../components/AppButton';
 
 export default function HomeScreen() {
+  const [summaryModalVisible, setSummaryModalVisible] = useState(false);
+  const [modalType, setModalType] = useState('complete');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTypeAdd, setModalTypeAdd] = useState('category');
+  const [inputText, setInputText] = useState('');
+
   const {
     timeLeft, initialTime, isActive, focusLoss, mode,
     category, categories, timeOptions, setCategory,
     toggleTimer, resetTimer, changeDuration, saveCurrentSession,
     addCategory, addTimer, deleteItem
-  } = useHomeLogic();
-
-  // Modal State (View only state)
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState('category');
-  const [inputText, setInputText] = useState('');
+  } = useHomeLogic(
+    () => { setModalType('complete'); setSummaryModalVisible(true); },
+    () => { setModalType('paused'); setSummaryModalVisible(true); }
+  );
 
   const formatTime = (s) => {
     const m = Math.floor(s / 60);
@@ -32,7 +36,7 @@ export default function HomeScreen() {
 
   const handleAdd = () => {
     if (!inputText.trim()) return;
-    if (modalType === 'category') addCategory(inputText.trim());
+    if (modalTypeAdd === 'category') addCategory(inputText.trim());
     else addTimer(parseInt(inputText));
     setModalVisible(false); setInputText('');
   };
@@ -53,7 +57,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             )}
             ListFooterComponent={
-              <TouchableOpacity style={styles.addBtn} onPress={() => {setModalType('category'); setModalVisible(true);}} disabled={mode !== 'idle'}>
+                <TouchableOpacity style={styles.addBtn} onPress={() => {setModalTypeAdd('category'); setModalVisible(true);}} disabled={mode !== 'idle'}>
                 <Ionicons name="add" size={20} color={colors.primary} />
               </TouchableOpacity>
             }
@@ -79,7 +83,7 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               )}
               ListFooterComponent={
-                <TouchableOpacity style={styles.addBtnCircle} onPress={() => {setModalType('timer'); setModalVisible(true);}}>
+                <TouchableOpacity style={styles.addBtnCircle} onPress={() => {setModalTypeAdd('timer'); setModalVisible(true);}}>
                    <Ionicons name="add" size={24} color={colors.subtext} />
                 </TouchableOpacity>
               }
@@ -105,34 +109,44 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Summary Card */}
-        {(mode === 'paused' || mode === 'summary') && (
-          <View style={styles.summaryContainer}>
-            <Card style={{ width: '100%' }}>
-              <Text style={styles.summaryTitle}>{mode === 'summary' ? 'Session Complete' : 'Paused'}</Text>
-              <View style={styles.divider} />
-              <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Category</Text><Text style={styles.summaryValue}>{category}</Text></View>
-              <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Time</Text><Text style={styles.summaryValue}>{formatTime(initialTime - timeLeft)}</Text></View>
-              <View style={styles.summaryBtnRow}>
-                <AppButton title="Discard" onPress={resetTimer} icon="trash-outline" color={colors.danger} outline style={{ flex: 1 }} />
-                <AppButton title="Save" onPress={saveCurrentSession} icon="checkmark-circle" color={colors.success} style={{ flex: 1 }} />
-              </View>
-            </Card>
-          </View>
-        )}
-
         <View style={{height:50}} />
         
         {/* Simple Modal */}
         <Modal visible={modalVisible} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Add {modalType === 'category' ? 'Category' : 'Timer'}</Text>
-              <TextInput style={styles.input} placeholder={modalType === 'category' ? "Name..." : "Minutes..."} 
-                keyboardType={modalType === 'timer' ? 'numeric' : 'default'} onChangeText={setInputText} autoFocus />
+              <Text style={styles.modalTitle}>Add {modalTypeAdd === 'category' ? 'Category' : 'Timer'}</Text>
+              <TextInput style={styles.input} placeholder={modalTypeAdd === 'category' ? "Name..." : "Minutes..."} 
+                keyboardType={modalTypeAdd === 'timer' ? 'numeric' : 'default'} onChangeText={setInputText} autoFocus />
               <View style={styles.modalBtns}>
                 <TouchableOpacity onPress={() => setModalVisible(false)} style={{padding:10, marginRight:10}}><Text>Cancel</Text></TouchableOpacity>
                 <AppButton title="Add" onPress={handleAdd} style={{height:40}} />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Summary Modal */}
+        <Modal visible={summaryModalVisible} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{modalType === 'complete' ? 'Session Complete' : 'Paused'}</Text>
+              <View style={styles.divider} />
+              <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Category</Text><Text style={styles.summaryValue}>{category}</Text></View>
+              <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Time</Text><Text style={styles.summaryValue}>{formatTime(initialTime - timeLeft)}</Text></View>
+              <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Distractions</Text><Text style={styles.summaryValue}>{focusLoss}</Text></View>
+              <View style={styles.modalBtns}>
+                {modalType === 'complete' ? (
+                  <>
+                    <AppButton title="Discard" onPress={() => { resetTimer(); setSummaryModalVisible(false); }} icon="trash-outline" color={colors.danger} outline style={{ flex: 1, marginRight: 10 }} />
+                    <AppButton title="Save" onPress={() => { saveCurrentSession(); setSummaryModalVisible(false); }} icon="checkmark-circle" color={colors.success} style={{ flex: 1 }} />
+                  </>
+                ) : (
+                  <>
+                    <AppButton title="Reset" onPress={() => { resetTimer(); setSummaryModalVisible(false); }} icon="refresh" color={colors.danger} outline style={{ flex: 1, marginRight: 10 }} />
+                    <AppButton title="Resume" onPress={() => { toggleTimer(); setSummaryModalVisible(false); }} icon="play" color={colors.primary} style={{ flex: 1 }} />
+                  </>
+                )}
               </View>
             </View>
           </View>
